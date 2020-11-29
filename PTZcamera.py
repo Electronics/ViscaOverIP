@@ -1,5 +1,6 @@
 import socket
 import logging as log
+from commands import *
 log.basicConfig(format='%(asctime)s %(message)s')
 log.addLevelName(5,"VERBOSE")
 log.getLogger().setLevel("VERBOSE")
@@ -99,15 +100,16 @@ def discoverCameras():
 		s.close()
 
 c = discoverCameras()
+d = Camera("titties", "10.0.1.90", "")
 import time
-while True:
-	c[0].sendCommand(b"\x81\x01\x06\x01\x18\x14\x02\x02\xFF") # move down
-	time.sleep(1)
-	c[0].sendCommand(b"\x81\x01\x06\x01\x18\x14\x01\x01\xFF") # move up
-	time.sleep(1)
+# while True:
+# 	d.sendCommand(b"\x81\x01\x06\x01\x18\x14\x02\x02\xFF") # move down
+# 	time.sleep(1)
+# 	d.sendCommand(b"\x81\x01\x06\x01\x18\x14\x01\x01\xFF") # move up
+# 	time.sleep(1)
 
+#d.sendCommand(b"\x81\x01\x7e\x01\x18\x02\xff")
 #c[0].setIP(name="LaurieC1")
 #c[0].sendCommand(b"\x81\x01\x7e\x01\x5a\x02\xff") # lowest latency
-# c[0].sendCommand(b"\x81\x01\x04\x07\x37\xff") # zoom out FAST
-# c[0].sendCommand(b"\x81\x01\x04\x07\x27\xff") # zoom in FAST
-
+#d.sendCommand(Commands.PanTiltUp())
+d.sendCommand(Commands.AutoFocus)

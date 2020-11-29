@@ -20,32 +20,51 @@ class Commands:
 	ZoomStop = bytearray.fromhex("8101040700ff")
 	ZoomTele = bytearray.fromhex("8101040702ff")
 	ZoomWide = bytearray.fromhex("8101040703ff")
-	ZoomTeleVariable = lambda speed: byteSet(ZoomTele, (speed & 7) | 0x20, 4)
-	ZoomWideVariable = lambda speed: byteSet(ZoomTele, (speed & 7) | 0x30, 4)
-	ZoomPos = None #TODO: I don't understand this function
+	def ZoomTeleVariable(self, speed):
+			return byteSet(self.ZoomTele, (speed & 7) | 0x20, 4)
+	def ZoomWideVariable(self, speed):
+			return byteSet(self.ZoomTele, (speed & 7) | 0x30, 4)
+	def ZoomPos(self, pos):
+		# 0-0x4000?
+		pos = "%0.4x" % (pos & 0xFFFF)
+		return bytearray.fromhex("810104470%s0%s0%s0%sff"%(pos[0],pos[1],pos[2],pos[3]))
 	DigitalZoomOn = bytearray.fromhex("8101040602ff")
 	DigitalZoomOff = bytearray.fromhex("8101040603ff")
 	FocusStop = bytearray.fromhex("8101040800ff")
 	FocusFar = bytearray.fromhex("8101040802ff")
 	FocusNear = bytearray.fromhex("8101040803ff")
-	FocusFarVariable = lambda speed: byteSet(FocusFar, (speed & 7) | 0x20, 4)
-	FocusNearVariable = lambda speed: byteSet(FocusFar, (speed & 7) | 0x30, 4)
-	FocusPos = None #TODO: don't undersand this
+	def FocusFarVariable(self, speed):
+			return byteSet(self.FocusFar, (speed & 7) | 0x20, 4)
+	def FocusNearVariable(self, speed):
+			return byteSet(self.FocusFar, (speed & 7) | 0x30, 4)
+	def FocusPos(self, pos):
+		# 0-0x4000?
+		pos = "%0.4x" % (pos & 0xFFFF)
+		return bytearray.fromhex("810104480%s0%s0%s0%sff" % (pos[0], pos[1], pos[2], pos[3]))
 	AutoFocus = bytearray.fromhex("8101043802ff")
 	ManualFocus = bytearray.fromhex("8101043803ff")
 	AutoManualFocus = bytearray.fromhex("8101043810ff") # switches?
 	FocusOnePush = bytearray.fromhex("8101041801ff")
 	FocusInfinity = bytearray.fromhex("8101041802ff")
-	FocusNearLimit = None #TODO: don't understand this
+	def FocusNearLimit(self, pos):
+		# 0-0x4000?
+		pos = "%0.4x" % (pos & 0xFFFF)
+		return bytearray.fromhex("810104280%s0%s0%s0%sff" % (pos[0], pos[1], pos[2], pos[3]))
 	AutoFocusSensitivityNormal = bytearray.fromhex("8101045802ff")
 	AutoFocusSensitivityLow = bytearray.fromhex("8101045803ff")
 	AutoFocusModeNormal = bytearray.fromhex("8101045700ff")
 	AutoFocusModeInterval = bytearray.fromhex("8101045701ff")
 	AutoFocusModeZoomTrigger = bytearray.fromhex("8101045702ff")
-	AutoFocusModeIntervalTime = None #TODO: not exactly sure on this
+	def AutoFocusModeIntervalTime(self, time, speed=7):
+		speed = "%0.2x" % (speed & 0xFF)
+		time = "%0.2x" % (time & 0xFF)
+		return bytearray.fromhex("810104270%s0%s0%s0%sff" % (speed[0], speed[1], time[0], time[1]))
 	IRCorrectionStandard = bytearray.fromhex("8101041100ff")
 	IRCorrectionIRLight = bytearray.fromhex("8101041101ff")
-	ZoomFocus = None #TODO: again, not sure
+	def ZoomFocus(self, zoomPos, focusPos):
+		zoomPos = "%0.4x" % (zoomPos & 0xFFFF)
+		focusPos = "%0.4x" % (focusPos & 0xFFFF)
+		return bytearray.fromhex("810104470%s0%s0%s0%s0%s0%s0%s0%sff" % (zoomPos[0], zoomPos[1], zoomPos[2], zoomPos[3], focusPos[0], focusPos[1], focusPos[2], focusPos[3]))
 	WBAuto = bytearray.fromhex("8101043500ff")
 	WBIndoor = bytearray.fromhex("8101043501ff")
 	WBOutdoor = bytearray.fromhex("8101043502ff")
@@ -56,11 +75,15 @@ class Commands:
 	RGainReset = bytearray.fromhex("8101040300ff")
 	RGainUp = bytearray.fromhex("8101040302ff")
 	RGainDown = bytearray.fromhex("8101040303ff")
-	RGainDirect = None #TODO: hm
+	def RGainDirect(self, gain):
+		gain = "%0.2x" % (gain & 0xFF)
+		return bytearray.fromhex("8101044300000%s0%sff" % (gain[0], gain[1]))
 	BGainReset = bytearray.fromhex("8101040400ff")
 	BGainUp = bytearray.fromhex("8101040402ff")
 	BGainDown = bytearray.fromhex("8101040403ff")
-	BGainDirect = None  # TODO: hm
+	def BGainDirect(self, gain):
+		gain = "%0.2x" % (gain & 0xFF)
+		return bytearray.fromhex("8101044400000%s0%sff" % (gain[0], gain[1]))
 	ExposureAuto = bytearray.fromhex("8101043900ff")
 	ExposureManual = bytearray.fromhex("8101043903ff")
 	ExposureShutterPriority = bytearray.fromhex("810104390aff")
@@ -71,25 +94,36 @@ class Commands:
 	ShutterReset = bytearray.fromhex("8101040a00ff")
 	ShutterUp = bytearray.fromhex("8101040a02ff")
 	ShutterDown = bytearray.fromhex("8101040a03ff")
-	ShutterDirect = None #TODO: hm
+	def ShutterDirect(self, pos):
+		pos = "%0.2x" % (pos & 0xFF)
+		return bytearray.fromhex("8101044a00000%s0%sff" % (pos[0], pos[1]))
 	IrisReset = bytearray.fromhex("8101040b00ff")
 	IrisUp = bytearray.fromhex("8101040b02ff")
 	IrisDown = bytearray.fromhex("8101040b03ff")
-	IrisDirect = None  # TODO: hm
+	def IrisDirect(self, pos):
+		pos = "%0.2x" % (pos & 0xFF)
+		return bytearray.fromhex("8101044b00000%s0%sff" % (pos[0], pos[1]))
 	GainReset = bytearray.fromhex("8101040c00ff")
 	GainUp = bytearray.fromhex("8101040c02ff")
 	GainDown = bytearray.fromhex("8101040c03ff")
-	GainDirect = None  # TODO:
-	GainAELimit = lambda gain: byteSet(bytearray.fromhex("8101042c00ff"),(gain & 0x0f), 4) # gain 4-F
+	def GainDirect(self, pos):
+		pos = "%0.2x" % (pos & 0xFF)
+		return bytearray.fromhex("8101044c00000%s0%sff" % (pos[0], pos[1]))
+	def GainAELimit(self, gain):
+			return byteSet(bytearray.fromhex("8101042c00ff"),(gain & 0x0f), 4) # gain 4-F
 	BrightUp = bytearray.fromhex("8101040d02ff")
 	BrightDown = bytearray.fromhex("8101040d03ff")
-	BrightDirect = None #TODO:
+	def BrightDirect(self, pos):
+		pos = "%0.2x" % (pos & 0xFF)
+		return bytearray.fromhex("8101044d00000%s0%s" % (pos[0], pos[1]))
 	ExposureCompOn = bytearray.fromhex("8101043e02ff")
 	ExposureCompOff = bytearray.fromhex("8101043e03ff")
 	ExposureCompReset = bytearray.fromhex("8101040e00ff")
 	ExposureCompUp = bytearray.fromhex("8101040e02ff")
 	ExposureCompDown = bytearray.fromhex("8101040e03ff")
-	ExposureCompDirect = None #TODO
+	def ExposureCompDirect(self, pos):
+		pos = "%0.2x" % (pos & 0xFF)
+		return bytearray.fromhex("8101044e00000%s0%sff" % (pos[0], pos[1]))
 	BacklightCompOn = bytearray.fromhex("8101043302ff")
 	BacklightCompOff = bytearray.fromhex("8101043303ff")
 	WideDynamicRangeOff = bytearray.fromhex("81017e040000ff")
@@ -101,13 +135,17 @@ class Commands:
 	ApertureReset = bytearray.fromhex("8101040200ff")
 	ApertureUp = bytearray.fromhex("8101040202ff")
 	ApertureDown = bytearray.fromhex("8101040203ff")
-	ApertureDirect = None #TODO
+	def ApertureDirect(self, gain):
+		gain = "%0.2x" % (gain & 0xFF)
+		return bytearray.fromhex("8101044200000%s0%s" % (gain[0], gain[1]))
 	HighResolutionOn = bytearray.fromhex("8101045202ff")
 	HighResolutionOff = bytearray.fromhex("8101045203ff")
 	NoiseReductionOff = bytearray.fromhex("8101045300ff")
-	NoiseReduction = lambda level: byteSet(NoiseReductionOff, level & 0x07, 4)
+	def NoiseReduction(self, level):
+		return byteSet(self.NoiseReductionOff, level & 0x07, 4)
 	GammaStandard = bytearray.fromhex("8101045b00ff")
-	Gamma = lambda level: byteSet(GammaStandard, level & 0x07, 4)
+	def Gamma(self, level):
+		return byteSet(self.GammaStandard, level & 0x07, 4)
 	HighSensitivityOn = bytearray.fromhex("8101045e02ff")
 	HighSensitivityOff = bytearray.fromhex("8101045e03ff")
 	PictureEffectOff = bytearray.fromhex("8101046300ff")
@@ -116,14 +154,20 @@ class Commands:
 	MemoryReset = lambda preset: byteSet(bytearray.fromhex("8101043f0000ff"), preset & 0x07, 5)
 	MemorySet = lambda preset: byteSet(bytearray.fromhex("8101043f0100ff"), preset & 0x07, 5)
 	MemoryRecall = lambda preset: byteSet(bytearray.fromhex("8101043f0200ff"), preset & 0x07, 5)
-	IDWrite = None #TODO: lambda id: byteSet(bytearray.fromhex("8101042200000000ff"),)
+	def IDWrite(self, id):
+		id = "%0.4x" % (id & 0xFFFF)
+		return bytearray.fromhex("810104220%s0%s0%s0%sff" % (id[0], id[1], id[2], id[3]))
 	ChromaSurpress = lambda level: byteSet(bytearray.fromhex("8101045f00ff"),level & 0xff, 4)
-	ColorGain = None #TODO
-	ColorHue = None #TODO
+	def ColorGain(self, spec, gain):
+		return bytearray.fromhex("810104490000%0.2x%0.2xff" % (spec & 0x07, gain & 0x0f))
+	def ColorHue(self, spec, phase):
+		return bytearray.fromhex("8101044f0000%0.2x%0.2xff" % (spec & 0x07, phase & 0x0f))
 	LowLatencyLow = bytearray.fromhex("81017e015a02ff")
 	LowLatencyNormal = bytearray.fromhex("81017e015a03ff")
 	MenuOff = bytearray.fromhex("8101060603ff")
-	VideoFormatChange = None #TODO
+	def VideoFormatChange(self, format):
+		format = "%0.2x" % (format & 0xFF)
+		return bytearray.fromhex("81017e011e0%s0%sff" % (format[0], format[1]))
 	ColorSystem = lambda a: byteSet(bytearray.fromhex("81017e01030000ff"),a & 0x03, 6)
 	IROn = bytearray.fromhex("8101060802ff")
 	IROff = bytearray.fromhex("8101060803ff")
@@ -136,15 +180,15 @@ class Commands:
 		pan = "%0.4x"%(panPos&0xFFFF)
 		tilt = "%0.4x"%(tiltPos&0xFFFF)
 		return bytearray.fromhex("81010602%0.2x%0.2x0%s0%s0%s0%s0%s0%s0%s0%sff"%(
-			panSpeed, tiltSpeed, pan[3], pan[2], pan[1], pan[0],
-			tilt[3], tilt[2], tilt[1], tilt[0]
+			panSpeed, tiltSpeed, pan[0], pan[1], pan[2], pan[3],
+			tilt[0], tilt[1], tilt[2], tilt[3]
 		))
 	def PanTiltRes(self, panPos=0, tiltPos=0, panSpeed=1, tiltSpeed=1):
 		pan = "%0.4x"%(panPos&0xFFFF)
 		tilt = "%0.4x"%(tiltPos&0xFFFF)
 		return bytearray.fromhex("81010603%0.2x%0.2x0%s0%s0%s0%s0%s0%s0%s0%sff"%(
-			panSpeed, tiltSpeed, pan[3], pan[2], pan[1], pan[0],
-			tilt[3], tilt[2], tilt[1], tilt[0]
+			panSpeed, tiltSpeed, pan[0], pan[1], pan[2], pan[3],
+			tilt[0], tilt[1], tilt[2], tilt[3]
 		))
 	def PanTiltUp(self, panSpeed=1, tiltSpeed=1):
 		return bytearray.fromhex("81010601%0.2x%0.2x0301ff"%(panSpeed, tiltSpeed))
@@ -170,15 +214,15 @@ class Commands:
 		pan = "%0.4x"%(panPos&0xFFFF)
 		tilt = "%0.4x"%(tiltPos&0xFFFF)
 		return bytearray.fromhex("8101060700%0.2x0%s0%s0%s0%s0%s0%s0%s0%sff"%(
-			pos, pan[3], pan[2], pan[1], pan[0],
-			tilt[3], tilt[2], tilt[1], tilt[0]
+			pos, pan[0], pan[1], pan[2], pan[3],
+			tilt[0], tilt[1], tilt[2], tilt[3]
 		))
 	def PanTiltLimitClear(self, pos, panPos=0, tiltPos=0):# pos=1 UpRight, pos=0 DownLeft
 		pan = "%0.4x"%(panPos&0xFFFF)
 		tilt = "%0.4x"%(tiltPos&0xFFFF)
 		return bytearray.fromhex("8101060701%0.2x0%s0%s0%s0%s0%s0%s0%s0%sff"%(
-			pos, pan[3], pan[2], pan[1], pan[0],
-			tilt[3], tilt[2], tilt[1], tilt[0]
+			pos, pan[0], pan[1], pan[2], pan[3],
+			tilt[0], tilt[1], tilt[2], tilt[3]
 		))
-
+Commands = Commands()
 
