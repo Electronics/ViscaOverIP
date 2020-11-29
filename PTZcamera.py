@@ -7,12 +7,14 @@ log.getLogger().setLevel("VERBOSE")
 socket.setdefaulttimeout(1)
 
 class Camera:
+	sequenceNumber = 1 # starts at 1?
 	def __init__(self, name, ip, mac, netmask="255.255.255.0", gateway="0.0.0.0"):
 		self.name = name
 		self.ip = ip
 		self.mac = mac # mac using dashes to seperate
 		self.netmask = netmask
 		self.gateway = gateway
+		self.resetSequenceNumber()
 	def __str__(self):
 		return f"{self.name}({self.mac}) {self.ip}"
 
@@ -30,15 +32,28 @@ class Camera:
 					b"\xFFMASK:"+bytes(netmask, encoding="utf-8")+b"\xFFGATEWAY:"+bytes(gateway, encoding="utf-8")+
 					b"\xFFNAME:"+bytes(name, encoding="utf-8")+b"\xFF\x03")
 		#sock.sendto(command, (self.ip, 52380))
-		sendCommand(self.ip, command)
+		sendRawCommand(self.ip, command, port=52380)
 
-def sendCommand(ip, command):
-	# this sends a command and waits for a response
+	def sendCommand(self, command):
+		# for general commands (payload type 0100), command should be bytes
+		length = len(command).to_bytes(2, 'big')
+		command = b"\x01\x00" + length + self.sequenceNumber.to_bytes(4, 'big') + command
+		sendRawCommand(self.ip, command) # TODO: deal with udp packets getting lost and sequence number desyncing (see manual)
+		self.sequenceNumber += 1
+
+	def resetSequenceNumber(self):
+		self.sequenceNumber = 1
+		sendRawCommand(self.ip, bytearray.fromhex('02 00 00 01 00 00 00 01 01'))
+
+
+def sendRawCommand(ip, command, port=52381):
+	# this sends a command and waits for a response, note it does NOT calculate / use the sequence number
 	# command should be a bytes object
 	log.debug("Sending to %s: %r", ip, command)
-	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-	s.connect((ip, 52380))
-	s.send(command)
+	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+	s.bind(("", port))
+	s.sendto(command, (ip, port))
 	try:
 		data = s.recv(1024)
 		log.debug("Received %r",data)
@@ -46,6 +61,7 @@ def sendCommand(ip, command):
 			log.error("Command failed with error: %r", data)
 		return data
 	except socket.timeout:
+		log.error("Sendrawcommand timeout to %s", ip)
 		return None
 	finally:
 		s.close()
@@ -83,4 +99,15 @@ def discoverCameras():
 		s.close()
 
 c = discoverCameras()
-#c[0].setIP(name="BOOBIES")
+import time
+while True:
+	c[0].sendCommand(b"\x81\x01\x06\x01\x18\x14\x02\x02\xFF") # move down
+	time.sleep(1)
+	c[0].sendCommand(b"\x81\x01\x06\x01\x18\x14\x01\x01\xFF") # move up
+	time.sleep(1)
+
+#c[0].setIP(name="LaurieC1")
+#c[0].sendCommand(b"\x81\x01\x7e\x01\x5a\x02\xff") # lowest latency
+# c[0].sendCommand(b"\x81\x01\x04\x07\x37\xff") # zoom out FAST
+# c[0].sendCommand(b"\x81\x01\x04\x07\x27\xff") # zoom in FAST
+
