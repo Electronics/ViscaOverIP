@@ -25,7 +25,7 @@ class Commands:
 	def ZoomWideVariable(self, speed):
 			return byteSet(self.ZoomTele, (speed & 7) | 0x30, 4)
 	def ZoomPos(self, pos):
-		# 0-0x4000?
+		# 0-0x4000 analog, 0x4000-0x7AC0 digital
 		pos = "%0.4x" % (pos & 0xFFFF)
 		return bytearray.fromhex("810104470%s0%s0%s0%sff"%(pos[0],pos[1],pos[2],pos[3]))
 	DigitalZoomOn = bytearray.fromhex("8101040602ff")
@@ -226,3 +226,92 @@ class Commands:
 		))
 Commands = Commands()
 
+class Inquiry:
+	Power = bytearray.fromhex("81090400ff")
+	ZoomPos = bytearray.fromhex("81090447ff")
+	DZoomMode = bytearray.fromhex("81090447ff")
+	FocusMode = bytearray.fromhex("81090438ff")
+	FocusPos = bytearray.fromhex("81090448ff")
+	FocusNearLimit = bytearray.fromhex("81090428ff")
+	AutoFocusSensitivty = bytearray.fromhex("81090458ff")
+	AutoFocusMode = bytearray.fromhex("81090457ff")
+	AutoFocusInterval = bytearray.fromhex("81090427ff")
+	IR = bytearray.fromhex("81090411ff")
+	WBMode = bytearray.fromhex("81090435ff")
+	RGain = bytearray.fromhex("81090443ff")
+	BGain = bytearray.fromhex("81090444ff")
+	AEMode = bytearray.fromhex("81090439ff")
+	SlowShutterMode = bytearray.fromhex("8109045aff")
+	ShutterPos = bytearray.fromhex("8109044aff")
+	IrisPos = bytearray.fromhex("8109044bff")
+	GainPos = bytearray.fromhex("8109044cff")
+	GainLimit = bytearray.fromhex("8109042cff")
+	BrightPos = bytearray.fromhex("8109044dff")
+	ExposureCompMode = bytearray.fromhex("8109043eff")
+	ExposureCompPos = bytearray.fromhex("8109044eff")
+	BacklightMode = bytearray.fromhex("81090433ff")
+	WDMode = bytearray.fromhex("81097e0400ff")
+	Defog = bytearray.fromhex("81090437ff")
+	Aperture = bytearray.fromhex("81090442ff")
+	HighResolutionMode = bytearray.fromhex("81090452ff")
+	NR = bytearray.fromhex("81090453ff")
+	Gamma = bytearray.fromhex("8109045bff")
+	HighSensitivity = bytearray.fromhex("8109045eff")
+	PictureEffectMode = bytearray.fromhex("81090463ff")
+	ID = bytearray.fromhex("81090422ff")
+	Version = bytearray.fromhex("810900002ff")
+	ChromaSuppress = bytearray.fromhex("8109045fff")
+	ColorGain = bytearray.fromhex("81090449ff")
+	ColorHue = bytearray.fromhex("8109044fff")
+	LowLatency = bytearray.fromhex("81097e015aff")
+	MenuMode = bytearray.fromhex("81090606ff")
+	InformationDisplay = bytearray.fromhex("81097e0118ff")
+	VideoFormat = bytearray.fromhex("81090623ff")
+	ColorSystem = bytearray.fromhex("81097e0103ff")
+	IRReceive = bytearray.fromhex("81090608ff")
+	IRCondition = bytearray.fromhex("81090634ff")
+	PanTiltMaxSpeed = bytearray.fromhex("81090611ff")
+	PanTiltPos = bytearray.fromhex("81090612ff")
+	PanTiltMode = bytearray.fromhex("81090610ff")
+
+	BlockLens = bytearray.fromhex("81097e7e00ff")
+	BlockControl = bytearray.fromhex("81097e7e01ff")
+	BlockOther = bytearray.fromhex("81097e7e02ff")
+	BlockEnlargement = bytearray.fromhex("81097e7e03ff")
+	BlockEnlargement2 = bytearray.fromhex("81097e7e04ff")
+	BlockEnlargement3 = bytearray.fromhex("81097e7e05ff")
+
+VideoFormats = {
+	"1080p59": 0,
+	"1080p29": 1,
+	"1080i59": 2,
+	"720p59": 3,
+	"720p29": 4,
+	"1080p50": 8,
+	"1080p25": 0xA,
+	"1080i50": 0xB,
+	"720p50": 0xC,
+	"720p25": 0xD
+}
+ColorSystems = {
+	"HDMI-YUV": 0,
+	"HDMI-GBR": 1,
+	"DVI-GBR": 2,
+	"DVI-YUV": 3
+}
+Iris = {
+	"F1.8": 0x11,
+	"F2.0": 0x10,
+	"F2.4": 0xf,
+	"F2.8": 0xe,
+	"F3.4": 0xd,
+	"F4": 0xc,
+	"F4.8": 0xb,
+	"F5.6": 0xa,
+	"F6.8": 9,
+	"F8": 8,
+	"F9.6": 7,
+	"F11": 6,
+	"F14": 5,
+	"CLOSE": 0
+}
