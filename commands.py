@@ -259,7 +259,7 @@ class Inquiry:
 	HighSensitivity = bytearray.fromhex("8109045eff")
 	PictureEffectMode = bytearray.fromhex("81090463ff")
 	ID = bytearray.fromhex("81090422ff")
-	Version = bytearray.fromhex("810900002ff")
+	Version = bytearray.fromhex("81090002ff")
 	ChromaSuppress = bytearray.fromhex("8109045fff")
 	ColorGain = bytearray.fromhex("81090449ff")
 	ColorHue = bytearray.fromhex("8109044fff")
