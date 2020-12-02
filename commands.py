@@ -151,9 +151,12 @@ class Commands:
 	PictureEffectOff = bytearray.fromhex("8101046300ff")
 	PictureEffectNegative = bytearray.fromhex("8101046302ff")
 	PictureEffectBW = bytearray.fromhex("8101046304ff")
-	MemoryReset = lambda preset: byteSet(bytearray.fromhex("8101043f0000ff"), preset & 0x07, 5)
-	MemorySet = lambda preset: byteSet(bytearray.fromhex("8101043f0100ff"), preset & 0x07, 5)
-	MemoryRecall = lambda preset: byteSet(bytearray.fromhex("8101043f0200ff"), preset & 0x07, 5)
+	def MemoryReset(self, preset):
+		return byteSet(bytearray.fromhex("8101043f0000ff"), preset & 0x07, 5)
+	def MemorySet(self, preset):
+		return byteSet(bytearray.fromhex("8101043f0100ff"), preset & 0x07, 5)
+	def MemoryRecall(self, preset):
+		return byteSet(bytearray.fromhex("8101043f0200ff"), preset & 0x07, 5)
 	def IDWrite(self, id):
 		id = "%0.4x" % (id & 0xFFFF)
 		return bytearray.fromhex("810104220%s0%s0%s0%sff" % (id[0], id[1], id[2], id[3]))
@@ -207,7 +210,7 @@ class Commands:
 	def PanTiltDownRight(self, panSpeed=1, tiltSpeed=1):
 		return bytearray.fromhex("81010601%0.2x%0.2x0202ff" % (panSpeed, tiltSpeed))
 	def PanTiltStop(self, panSpeed=1, tiltSpeed=1):
-		return bytearray.fromhex("81010601%0.2x%0.2x0203ff" % (panSpeed, tiltSpeed))
+		return bytearray.fromhex("81010601%0.2x%0.2x0303ff" % (panSpeed, tiltSpeed))
 	PanTiltHome = bytearray.fromhex("81010604ff")
 	PanTiltReset = bytearray.fromhex("81010605ff")
 	def PanTiltLimitSet(self, pos, panPos=0, tiltPos=0):# pos=1 UpRight, pos=0 DownLeft
