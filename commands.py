@@ -72,13 +72,13 @@ class Commands:
 	WBATW = bytearray.fromhex("8101043504ff")
 	WBManual = bytearray.fromhex("8101043505ff")
 	WBOnePushTrigger = bytearray.fromhex("8101041005ff")
-	RGainReset = bytearray.fromhex("8101040300ff")
+	RGainReset = bytearray.fromhex("8101040300ff") # red gain (Manual WB)
 	RGainUp = bytearray.fromhex("8101040302ff")
 	RGainDown = bytearray.fromhex("8101040303ff")
 	def RGainDirect(self, gain):
 		gain = "%0.2x" % (gain & 0xFF)
 		return bytearray.fromhex("8101044300000%s0%sff" % (gain[0], gain[1]))
-	BGainReset = bytearray.fromhex("8101040400ff")
+	BGainReset = bytearray.fromhex("8101040400ff") # blue gain  (Manual WB)
 	BGainUp = bytearray.fromhex("8101040402ff")
 	BGainDown = bytearray.fromhex("8101040403ff")
 	def BGainDirect(self, gain):
@@ -183,7 +183,7 @@ class Commands:
 			panSpeed, tiltSpeed, pan[0], pan[1], pan[2], pan[3],
 			tilt[0], tilt[1], tilt[2], tilt[3]
 		))
-	def PanTiltRes(self, panPos=0, tiltPos=0, panSpeed=1, tiltSpeed=1):
+	def PanTiltRel(self, panPos=0, tiltPos=0, panSpeed=1, tiltSpeed=1):
 		pan = "%0.4x"%(panPos&0xFFFF)
 		tilt = "%0.4x"%(tiltPos&0xFFFF)
 		return bytearray.fromhex("81010603%0.2x%0.2x0%s0%s0%s0%s0%s0%s0%s0%sff"%(
