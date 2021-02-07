@@ -9,6 +9,9 @@ socket.setdefaulttimeout(1)
 
 class Camera:
 	sequenceNumber = 1 # starts at 1?
+	panSpeed = 0x08 # reasonable default speed
+	tiltSpeed = 0x08
+	zoomSpeed = 0x02
 	def __init__(self, name, ip, mac, netmask="255.255.255.0", gateway="0.0.0.0"):
 		self.name = name
 		self.ip = ip
@@ -56,6 +59,66 @@ class Camera:
 		tilt = (data[14] << 12) | (data[15] << 8) | (data[16] << 4) | data[17]
 		log.debug("Got positions, Pan: %0.4x Tilt: %0.4x", pan, tilt)
 		return (pan, tilt)
+	def getZoomPos(self):
+		data = self.inquire(Inquiry.ZoomPos)
+		return (data[10] << 12) | (data[11] << 8) | (data[12] << 4) | data[13]
+
+	def setPos(self, pan, tilt):
+		self.sendCommand(Commands.PanTiltAbs(pan, tilt, self.panSpeed, self.tiltSpeed))
+
+	def setSpeed(self, panSpeed=-1, tiltSpeed=-1, zoomSpeed=-1):
+		if panSpeed>0:
+			self.panSpeed = panSpeed
+		if tiltSpeed>0:
+			self.tiltSpeed = tiltSpeed
+		if zoomSpeed>0:
+			self.zoomSpeed = zoomSpeed
+
+	def moveLeft(self):
+		self.sendCommand(Commands.PanTiltLeft(self.panSpeed, self.tiltSpeed))
+	def moveRight(self):
+		self.sendCommand(Commands.PanTiltRight(self.panSpeed, self.tiltSpeed))
+	def moveUp(self):
+		self.sendCommand(Commands.PanTiltUp(self.panSpeed, self.tiltSpeed))
+	def moveDown(self):
+		self.sendCommand(Commands.PanTiltDown(self.panSpeed, self.tiltSpeed))
+	def moveUpLeft(self):
+		self.sendCommand(Commands.PanTiltUpLeft(self.panSpeed, self.tiltSpeed))
+	def moveUpRight(self):
+		self.sendCommand(Commands.PanTiltUpRight(self.panSpeed, self.tiltSpeed))
+	def moveDownLeft(self):
+		self.sendCommand(Commands.PanTiltDownLeft(self.panSpeed, self.tiltSpeed))
+	def moveDownRight(self):
+		self.sendCommand(Commands.PanTiltDownRight(self.panSpeed, self.tiltSpeed))
+	def home(self):
+		self.sendCommand(Commands.PanTiltHome)
+	def reset(self):
+		self.sendCommand(Commands.PanTiltReset)
+	def stop(self):
+		self.sendCommand(Commands.PanTiltStop())
+	def zoomIn(self):
+		self.sendCommand(Commands.ZoomTeleVariable(self.zoomSpeed))
+	def zoomOut(self):
+		self.sendCommand(Commands.ZoomWideVariable(self.zoomSpeed))
+	def zoomStop(self):
+		self.sendCommand(Commands.ZoomStop)
+	def zoomPos(self, pos):
+		self.sendCommand(Commands.ZoomPos(pos))
+	def storePreset(self, mem: int):
+		if mem < 8:
+			self.sendCommand(Commands.MemorySet(mem))
+		else:
+			raise IndexError("%d is not a valid memory preset 0-7" % (mem))
+	def recallPreset(self, mem: int):
+		if mem < 8:
+			self.sendCommand(Commands.MemoryRecall(mem))
+		else:
+			raise IndexError("%d is not a valid memory preset 0-7" % (mem))
+
+	def powerOn(self):
+		self.sendCommand(Commands.PowerOn)
+	def powerOff(self):
+		self.sendCommand(Commands.PowerOff)
 
 
 def sendRawCommand(ip, command, port=52381, skipCompletion=False):
@@ -134,8 +197,8 @@ def discoverCameras():
 	finally:
 		s.close()
 
-c = discoverCameras()
-d = Camera("CAM1", "10.0.1.90", "")
+# c = discoverCameras()
+# d = Camera("CAM1", "10.0.1.90", "")
 import time
 # while True:
 # 	d.sendCommand(b"\x81\x01\x06\x01\x18\x14\x02\x02\xFF") # move down
@@ -147,4 +210,5 @@ import time
 #c[0].setIP(name="LaurieC1")
 #c[0].sendCommand(b"\x81\x01\x7e\x01\x5a\x02\xff") # lowest latency
 #d.sendCommand(Commands.PanTiltUp())
-d.getPos()
+#d.sendCommand(Commands.PanTiltAbs(0x3000,0,0x10,0x10))
+#d.getPos()

@@ -179,7 +179,7 @@ class Commands:
 	ReceiveReturnOff = bytearray.fromhex("81017d01130000ff")
 	InfoDisplayOn = bytearray.fromhex("81017e011802ff")
 	InfoDisplayOff = bytearray.fromhex("81017e011803ff")
-	def PanTiltAbs(self, panPos=0, tiltPos=0, panSpeed=1, tiltSpeed=1):
+	def PanTiltAbs(self, panPos=0, tiltPos=0, panSpeed=1, tiltSpeed=1): # max speed Pan: 0x18, tilt: 0x14
 		pan = "%0.4x"%(panPos&0xFFFF)
 		tilt = "%0.4x"%(tiltPos&0xFFFF)
 		return bytearray.fromhex("81010602%0.2x%0.2x0%s0%s0%s0%s0%s0%s0%s0%sff"%(
